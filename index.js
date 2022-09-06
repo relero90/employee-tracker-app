@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const db = require("./assets/JS/connection");
+const { Department, Role, Employee } = require("./assets/JS/constructor");
 
 // inquirer question arrays
 const startQuestion = [

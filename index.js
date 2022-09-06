@@ -1,14 +1,5 @@
 const inquirer = require("inquirer");
-const mysql = require("mysql2");
-
-const db = mysql.createConnection({
-  host: "localhost",
-  // MySQL username,
-  user: "root",
-  // MySQL password
-  password: "",
-  database: "employee_db",
-});
+const db = require("./assets/JS/connection");
 
 // inquirer question arrays
 const startQuestion = [

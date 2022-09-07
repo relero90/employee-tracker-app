@@ -13,7 +13,7 @@ CREATE TABLE departments (
 -- create table -> roles
 CREATE TABLE roles (
     -- parent to table->employees
-    id INT UNSIGNED PRIMARY KEY,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     role_name VARCHAR(30),
     salary DECIMAL,
     -- child to table->departments
@@ -23,7 +23,7 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE employees (
-    id INT UNSIGNED PRIMARY KEY,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(30),
     last_name VARCHAR(30),
     -- child to table->roles

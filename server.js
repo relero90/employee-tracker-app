@@ -42,8 +42,8 @@ const addARoleQuestions = [
   },
   {
     type: "input",
-    message: "Which department does this role belong in?",
-    name: "roleDept",
+    message: "What is this role's department id?",
+    name: "roleDeptId",
   },
 ];
 const addAnEmployeeQuestions = [
@@ -72,7 +72,7 @@ const addAnEmployeeQuestions = [
 // to begin, pass "node index.js start" in the terminal
 function init() {
   if (process.argv[2] === "start") {
-    console.log(chalk.yellow("Welcome to the employee tracker."));
+    console.log(chalk.blue("Welcome to the employee tracker."));
 
     promptStart();
   }
@@ -80,8 +80,8 @@ function init() {
 init();
 
 function promptStart() {
-  inquirer.prompt(startQuestion).then((data) => {
-    switch (data.userReq) {
+  inquirer.prompt(startQuestion).then(({ userReq }) => {
+    switch (userReq) {
       case "View all departments":
         // console log table of all departments
         db.query("SELECT * FROM departments", function (err, results) {
@@ -89,11 +89,13 @@ function promptStart() {
             console.log(chalk.red(err));
           } else {
             const table = cTable.getTable(results);
-            console.log(chalk.magenta(`\n${table}`));
+            console.log(chalk.cyan(`\nAll Departments`));
+            console.log(chalk.magenta(`${table}\n`));
+            console.log(chalk.cyan(`Press the down arrow to continue.`));
+            // ask user for next action
+            promptStart();
           }
         });
-        // ask user for next action
-        promptStart();
         break;
       case "View all roles":
         // console log table of all roles
@@ -102,11 +104,13 @@ function promptStart() {
             console.log(chalk.red(err));
           } else {
             const table = cTable.getTable(results);
-            console.log(chalk.cyan(`\n${table}`));
+            console.log(chalk.blue(`\nAll Roles`));
+            console.log(chalk.cyan(`${table}\n`));
+            console.log(chalk.blue(`Press the down arrow to continue.`));
+            // ask user for next action
+            promptStart();
           }
         });
-        // ask user for next action
-        promptStart();
         break;
       case "View all employees":
         // console log table of al employees
@@ -115,11 +119,13 @@ function promptStart() {
             console.log(chalk.red(err));
           } else {
             const table = cTable.getTable(results);
-            console.log(chalk.blue(`\n${table}`));
+            console.log(chalk.cyan(`\nAll Employees`));
+            console.log(chalk.blue(`${table}\n`));
+            console.log(chalk.cyan(`Press the down arrow to continue.`));
+            // ask user for next action
+            promptStart();
           }
         });
-        // ask user for next action
-        promptStart();
         break;
       case "Add a department":
         promptForNewDept();
@@ -135,34 +141,59 @@ function promptStart() {
         // display updated data to the user?
         break;
       default:
-      // exit the application
+        break;
     }
   });
 }
 
 // adds a user-input department to employees_db
 function promptForNewDept() {
-  inquirer.prompt(addADeptQuestion).then((data) => {
-    db.query(
-      // need to increment id value as the next available in sequence
-      `INSERT INTO departments (name) VALUES (${data.name})`,
-      (err, results) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(chalk.magenta("Success!"));
-        }
+  inquirer.prompt(addADeptQuestion).then(({ departmentName }) => {
+    const insertQuery = `INSERT INTO departments (department_name) VALUES ("${departmentName}");`;
+
+    db.query(insertQuery, (err, results) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(chalk.magenta("Success!"));
+        promptStart();
       }
-    );
+    });
   });
 }
 
 // adds a user-input role to employees_db
 function promptForNewRole() {
-  inquirer.prompt(addARoleQuestions).then((data) => {});
+  inquirer
+    .prompt(addARoleQuestions)
+    .then(({ roleName, roleSalary, roleDeptId }) => {
+      const insertQuery = `INSERT INTO roles (role_name, salary, department_id) VALUES ("${roleName}", ${roleSalary}, ${roleDeptId});`;
+
+      db.query(insertQuery, (err, results) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(chalk.magenta("Success!"));
+          promptStart();
+        }
+      });
+    });
 }
 
 // adds a user-input employee to employees_db
 function promptForNewEmployee() {
-  inquirer.prompt(addAnEmployeeQuestions).then((data) => {});
+  inquirer
+    .prompt(addAnEmployeeQuestions)
+    .then(({ fName, lName, empRole, manager }) => {
+      const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${empRole}, ${manager});`;
+
+      db.query(insertQuery, (err, results) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(chalk.magenta("Success!"));
+          promptStart();
+        }
+      });
+    });
 }

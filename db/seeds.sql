@@ -4,7 +4,7 @@ VALUES
     ("Aquaria"),
     ("Oversized Felines");
 
-INSERT INTO roles (role_name, salary, department_id)
+INSERT INTO roles (job_title, salary, department_id)
 VALUES
     ("Poo Picker", 40000, 3),
     ("Glass Scrubber", 50000, 2),

@@ -14,7 +14,7 @@ CREATE TABLE departments (
 CREATE TABLE roles (
     -- parent to table->employees
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    role_name VARCHAR(30),
+    job_title VARCHAR(30),
     salary DECIMAL,
     -- child to table->departments
     department_id INT UNSIGNED,

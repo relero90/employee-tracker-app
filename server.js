@@ -99,7 +99,9 @@ function promptStart() {
         break;
       case "View all roles":
         // console log table of all roles
-        db.query("SELECT * FROM roles", function (err, results) {
+        const selectQuery = `SELECT roles.id, roles.job_title, departments.department_name,  roles.salary FROM roles
+        CROSS JOIN departments ON roles.department_id = departments.id;`;
+        db.query(selectQuery, function (err, results) {
           if (err) {
             console.log(chalk.red(err));
           } else {

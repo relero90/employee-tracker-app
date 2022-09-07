@@ -140,8 +140,29 @@ function promptStart() {
   });
 }
 
-function promptForNewDept() {}
+// adds a user-input department to employees_db
+function promptForNewDept() {
+  inquirer.prompt(addADeptQuestion).then((data) => {
+    db.query(
+      // need to increment id value as the next available in sequence
+      `INSERT INTO departments (id, name) VALUES (1, ${data.name})`,
+      (err, results) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(chalk.magenta("Success!"));
+        }
+      }
+    );
+  });
+}
 
-function promptForNewRole() {}
+// adds a user-input role to employees_db
+function promptForNewRole() {
+  inquirer.prompt(addARoleQuestions).then((data) => {});
+}
 
-function promptForNewEmployee() {}
+// adds a user-input employee to employees_db
+function promptForNewEmployee() {
+  inquirer.prompt(addAnEmployeeQuestions).then((data) => {});
+}

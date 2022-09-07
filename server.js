@@ -19,7 +19,7 @@ const startQuestion = [
       "Update an employee role",
       "Exit the employee tracker",
     ],
-    name: "userAction",
+    name: "userReq",
   },
 ];
 const addADeptQuestion = [
@@ -81,7 +81,7 @@ init();
 
 function promptStart() {
   inquirer.prompt(startQuestion).then((data) => {
-    switch (data.userAction) {
+    switch (data.userReq) {
       case "View all departments":
         // console log table of all departments
         db.query("SELECT * FROM departments", function (err, results) {
@@ -145,7 +145,7 @@ function promptForNewDept() {
   inquirer.prompt(addADeptQuestion).then((data) => {
     db.query(
       // need to increment id value as the next available in sequence
-      `INSERT INTO departments (id, name) VALUES (1, ${data.name})`,
+      `INSERT INTO departments (name) VALUES (${data.name})`,
       (err, results) => {
         if (err) {
           console.log(err);

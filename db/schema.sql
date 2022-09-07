@@ -5,7 +5,7 @@ USE employees_db;
 
 -- create parent table -> departments
 CREATE TABLE departments (
-    id INT UNSIGNED,
+    id INT UNSIGNED AUTO_INCREMENT,
     department_name VARCHAR(30),
     PRIMARY KEY (id)
 );

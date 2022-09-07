@@ -1,8 +1,8 @@
-INSERT INTO departments (id, department_name)
+INSERT INTO departments (department_name)
 VALUES
-    (1, "Aviary"),
-    (2, "Aquaria"),
-    (3, "Oversized Felines");
+    ("Aviary"),
+    ("Aquaria"),
+    ("Oversized Felines");
 
 INSERT INTO roles (id, role_name, salary, department_id)
 VALUES
@@ -17,7 +17,7 @@ INSERT INTO employees (id, first_name, last_name, role_id, manager_id)
 VALUES
     (1, "Bill", "Bean", 1, NULL),
     (2, "Bernie", "Queen", 3, NULL),
-    (3, "Hollis", "Sheen", 2, NULL),
-    (4, "Marla", "Mean", 5, 1),
-    (5, "Matt", "Jean", 4, 2),
-    (6, "Becca", "Boo", 6, 3);
+    (3, "Hollis", "Seen", 2, NULL),
+    (4, "Floafus", "Mean", 5, 1),
+    (5, "Cletus", "Gene", 4, 2),
+    (6, "Floyd", "Lean", 6, 3);

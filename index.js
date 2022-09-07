@@ -17,6 +17,7 @@ const startQuestion = [
       "Add a role",
       "Add an employee",
       "Update an employee role",
+      "Exit the employee tracker",
     ],
     name: "userAction",
   },
@@ -88,15 +89,37 @@ function promptStart() {
             console.log(chalk.red(err));
           } else {
             const table = cTable.getTable(results);
-            console.log(chalk.cyan(table));
+            console.log(chalk.magenta(`\n${table}`));
           }
         });
+        // ask user for next action
+        promptStart();
         break;
       case "View all roles":
         // console log table of all roles
+        db.query("SELECT * FROM roles", function (err, results) {
+          if (err) {
+            console.log(chalk.red(err));
+          } else {
+            const table = cTable.getTable(results);
+            console.log(chalk.cyan(`\n${table}`));
+          }
+        });
+        // ask user for next action
+        promptStart();
         break;
       case "View all employees":
         // console log table of al employees
+        db.query("SELECT * FROM employees", function (err, results) {
+          if (err) {
+            console.log(chalk.red(err));
+          } else {
+            const table = cTable.getTable(results);
+            console.log(chalk.blue(`\n${table}`));
+          }
+        });
+        // ask user for next action
+        promptStart();
         break;
       case "Add a department":
         promptForNewDept();
@@ -111,6 +134,8 @@ function promptStart() {
         // query to UPDATE (see M12 A9)
         // display updated data to the user?
         break;
+      default:
+      // exit the application
     }
   });
 }

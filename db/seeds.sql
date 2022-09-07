@@ -16,8 +16,8 @@ VALUES
 INSERT INTO employees (first_name, last_name, role_id, manager_id)
 VALUES
     ("Bill", "Bean", 1, NULL),
-    ("Bernie", "Queen", 3, NULL),
-    ("Hollis", "Seen", 2, NULL),
-    ("Floafus", "Mean", 5, 1),
-    ("Cletus", "Gene", 4, 2),
-    ("Floyd", "Lean", 6, 3);
+    ("Bernie", "Bae", 3, NULL),
+    ("Hollis", "Holmes", 2, NULL),
+    ("Floafus", "Fortiscue", 5, 1),
+    ("Cletus", "Queen", 4, 2),
+    ("Floyd", "Freeman", 6, 3);

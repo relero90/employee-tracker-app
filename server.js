@@ -114,6 +114,7 @@ function promptStart() {
         // display updated data to the user?
         break;
       default:
+        process.exit();
         break;
     }
   });

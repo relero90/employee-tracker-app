@@ -173,12 +173,16 @@ function promptForNewRole(departmentChoices) {
   let departmentNames;
   let departmentData;
   db.query("SELECT * FROM departments;", (err, result) => {
-    departmentData = result.map(({id, department_name}) => {
-      id: id,
-      name: department_name
+    departmentData = result.map(({ id, department_name }) => {
+      [
+        {
+          id: id,
+          name: department_name,
+        },
+      ];
     });
 
-    // console.log(departmentData);
+    console.log(departmentData);
 
     departmentNames = result.map(({ department_name }) => department_name);
     console.log(departmentNames);

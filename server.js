@@ -29,7 +29,6 @@ const addADeptQuestion = [
     name: "departmentName",
   },
 ];
-
 const addAnEmployeeQuestions = [
   {
     type: "input",
@@ -125,9 +124,9 @@ function promptStart() {
         promptForNewDept();
         break;
       case "Add a role":
-        let departmentChoices = pullDeptChoices();
-        console.log(departmentChoices);
-        promptForNewRole(departmentChoices);
+        // let departmentChoices = pullDeptChoices();
+        // console.log(departmentChoices);
+        promptForNewRole();
         break;
       case "Add an employee":
         promptForNewEmployee();
@@ -164,45 +163,50 @@ function pullDeptChoices() {
     for (const obj of result) {
       deptChoicePull.push(obj.department_name);
     }
-    console.log(deptChoicePull);
+    console.log("line 166" + deptChoicePull);
     return deptChoicePull;
   });
 }
 
 // adds a user-input role to employees_db
 function promptForNewRole(departmentChoices) {
-  let addARoleQuestions = [
-    {
-      type: "input",
-      message: "What is the name of the role?",
-      name: "roleName",
-    },
-    {
-      type: "input",
-      message: "What is this role's salary?",
-      name: "roleSalary",
-    },
-    {
-      type: "list",
-      message: "To which department does this role belong?",
-      choices: `${departmentChoices}`,
-      name: "roleDeptId",
-    },
-  ];
-  inquirer
-    .prompt(addARoleQuestions)
-    .then(({ roleName, roleSalary, roleDeptId }) => {
-      const insertQuery = `INSERT INTO roles (job_title, salary, department_id) VALUES ("${roleName}", ${roleSalary}, ${roleDeptId});`;
+  let departmentData;
+  db.query("SELECT * FROM departments;", (err, result) => {
+    departmentData = result.map(({ department_name }) => department_name);
+    console.log("data: ", departmentData);
+    let addARoleQuestions = [
+      {
+        type: "input",
+        message: "What is the name of the role?",
+        name: "roleName",
+      },
+      {
+        type: "input",
+        message: "What is this role's salary?",
+        name: "roleSalary",
+      },
+      {
+        type: "list",
+        message: "To which department does this role belong?",
+        choices: departmentData,
+        name: "roleDeptId",
+      },
+    ];
+    inquirer
+      .prompt(addARoleQuestions)
+      .then(({ roleName, roleSalary, roleDeptId }) => {
+        const insertQuery = `INSERT INTO roles (job_title, salary, department_id) VALUES ("${roleName}", ${roleSalary}, ${roleDeptId});`;
 
-      db.query(insertQuery, (err, results) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(chalk.magenta("Success!"));
-          promptStart();
-        }
+        db.query(insertQuery, (err, results) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(chalk.magenta("Success!"));
+            promptStart();
+          }
+        });
       });
-    });
+  });
 }
 
 // adds a user-input employee to employees_db

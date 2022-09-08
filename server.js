@@ -125,7 +125,7 @@ function promptStart() {
         promptForNewDept();
         break;
       case "Add a role":
-        departmentChoices = pullDeptChoices();
+        let departmentChoices = pullDeptChoices();
         console.log(departmentChoices);
         promptForNewRole(departmentChoices);
         break;

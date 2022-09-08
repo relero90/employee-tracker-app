@@ -29,28 +29,6 @@ const addADeptQuestion = [
     name: "departmentName",
   },
 ];
-const addAnEmployeeQuestions = [
-  {
-    type: "input",
-    message: "What is the employee's first name",
-    name: "fName",
-  },
-  {
-    type: "input",
-    message: "What is the employee's last name",
-    name: "lName",
-  },
-  {
-    type: "input",
-    message: "What is the employee's role",
-    name: "empRole",
-  },
-  {
-    type: "input",
-    message: "Who is the employee's manager",
-    name: "manager",
-  },
-];
 
 // to begin, pass "node index.js start" in the terminal
 function init() {
@@ -149,22 +127,10 @@ function promptForNewDept() {
       if (err) {
         console.log(err);
       } else {
-        console.log(chalk.magenta("Success!"));
+        console.log(chalk.magenta("Department successfully added!"));
         promptStart();
       }
     });
-  });
-}
-
-// pulls available department choices from database to display as options for the user
-function pullDeptChoices() {
-  let deptChoicePull = [];
-  db.query("SELECT department_name FROM departments;", (err, result) => {
-    for (const obj of result) {
-      deptChoicePull.push(obj.department_name);
-    }
-    console.log("line 166" + deptChoicePull);
-    return deptChoicePull;
   });
 }
 
@@ -196,7 +162,6 @@ function promptForNewRole(departmentChoices) {
     inquirer
       .prompt(addARoleQuestions)
       .then(({ roleName, roleSalary, departmentName }) => {
-        // declare deptId variable
         let deptId;
         // for each object in the departmentData array,
         for (var dept of departmentData) {
@@ -222,18 +187,57 @@ function promptForNewRole(departmentChoices) {
 
 // adds a user-input employee to employees_db
 function promptForNewEmployee() {
-  inquirer
-    .prompt(addAnEmployeeQuestions)
-    .then(({ fName, lName, empRole, manager }) => {
-      const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${empRole}, ${manager});`;
-
-      db.query(insertQuery, (err, results) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(chalk.magenta("Success!"));
-          promptStart();
+  let jobTitles;
+  let rolesData;
+  db.query("SELECT * FROM roles;", (err, result) => {
+    rolesData = result;
+    jobTitles = result.map(({ job_title }) => job_title);
+    const addAnEmployeeQuestions = [
+      {
+        type: "input",
+        message: "What is the employee's first name",
+        name: "fName",
+      },
+      {
+        type: "input",
+        message: "What is the employee's last name",
+        name: "lName",
+      },
+      {
+        type: "list",
+        message: "What is the employee's role",
+        choices: jobTitles,
+        name: "jobTitle",
+      },
+      {
+        type: "input",
+        message: "Who is the employee's manager",
+        name: "manager",
+      },
+    ];
+    inquirer
+      .prompt(addAnEmployeeQuestions)
+      .then(({ fName, lName, jobTitle, manager }) => {
+        let roleId;
+        // for each object in the rolesData array,
+        for (var role of rolesData) {
+          // If the object's job_title value matches the user's input value
+          if ((role.job_title = jobTitle)) {
+            //  roleId is equal to the id value off that object
+            roleId = role.id;
+          }
         }
+
+        const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${roleId}, ${manager});`;
+
+        db.query(insertQuery, (err, results) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(chalk.magenta("Employee successfully added!"));
+            promptStart();
+          }
+        });
       });
-    });
+  });
 }

@@ -3,7 +3,6 @@ const chalk = require("chalk");
 const cTable = require("console.table");
 const db = require("./assets/JS/connection");
 const { Department, Role, Employee } = require("./assets/JS/constructor");
-let departmentChoices = [];
 
 // inquirer question arrays
 const startQuestion = [
@@ -30,24 +29,7 @@ const addADeptQuestion = [
     name: "departmentName",
   },
 ];
-const addARoleQuestions = [
-  {
-    type: "input",
-    message: "What is the name of the role?",
-    name: "roleName",
-  },
-  {
-    type: "input",
-    message: "What is this role's salary?",
-    name: "roleSalary",
-  },
-  {
-    type: "list",
-    message: "To which department does this role belong?",
-    choices: departmentChoices,
-    name: "roleDeptId",
-  },
-];
+
 const addAnEmployeeQuestions = [
   {
     type: "input",
@@ -145,7 +127,7 @@ function promptStart() {
       case "Add a role":
         departmentChoices = pullDeptChoices();
         console.log(departmentChoices);
-        promptForNewRole();
+        promptForNewRole(departmentChoices);
         break;
       case "Add an employee":
         promptForNewEmployee();
@@ -188,8 +170,25 @@ function pullDeptChoices() {
 }
 
 // adds a user-input role to employees_db
-function promptForNewRole() {
-  // console.log(departmentChoices);
+function promptForNewRole(departmentChoices) {
+  let addARoleQuestions = [
+    {
+      type: "input",
+      message: "What is the name of the role?",
+      name: "roleName",
+    },
+    {
+      type: "input",
+      message: "What is this role's salary?",
+      name: "roleSalary",
+    },
+    {
+      type: "list",
+      message: "To which department does this role belong?",
+      choices: `${departmentChoices}`,
+      name: "roleDeptId",
+    },
+  ];
   inquirer
     .prompt(addARoleQuestions)
     .then(({ roleName, roleSalary, roleDeptId }) => {

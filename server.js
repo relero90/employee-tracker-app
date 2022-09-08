@@ -1,8 +1,8 @@
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const cTable = require("console.table");
-const db = require("./assets/JS/connection");
-const { Department, Role, Employee } = require("./assets/JS/constructor");
+const db = require("./config/connection");
+// const promptForNewDept = require("./assets/departments");
 
 // inquirer question arrays
 const startQuestion = [
@@ -102,8 +102,6 @@ function promptStart() {
         promptForNewDept();
         break;
       case "Add a role":
-        // let departmentChoices = pullDeptChoices();
-        // console.log(departmentChoices);
         promptForNewRole();
         break;
       case "Add an employee":
@@ -133,6 +131,7 @@ function promptForNewDept() {
       }
     });
   });
+  return;
 }
 
 // adds a user-input role to employees_db
@@ -189,7 +188,7 @@ function promptForNewRole(departmentChoices) {
 // adds a user-input employee to employees_db
 function promptForNewEmployee() {
   let jobTitles;
-  let rolesData; //rename to dataSet
+  let dataSet;
   let managerNames;
   db.query(
     "SELECT employees.id, employees.first_name, employees.last_name, roles.id AS role_id, employees.manager_id, roles.job_title FROM employees CROSS JOIN roles ON roles.id = employees.role_id;",
@@ -197,18 +196,14 @@ function promptForNewEmployee() {
       if (err) {
         console.log(err);
       }
-      rolesData = result;
-      // console.log(result);
+      // capturing values to be used as user choices when entering a new employee
+      dataSet = result;
       jobTitles = result.map(({ job_title }) => job_title);
-      // returns all employees - need to filter data to only where
       let managers = result.filter((obj) => obj.manager_id === null);
-      // console.log(managers);
       managerNames = managers.map(
-        ({ first_name, last_name, job_title }) =>
+        ({ id, first_name, last_name, job_title }) =>
           `${first_name} ${last_name} - ${job_title}`
       );
-      console.log(managerNames);
-
       const addAnEmployeeQuestions = [
         {
           type: "input",
@@ -235,18 +230,25 @@ function promptForNewEmployee() {
       ];
       inquirer
         .prompt(addAnEmployeeQuestions)
-        .then(({ fName, lName, jobTitle, manager }) => {
+        .then(({ fName, lName, jobTitle, managerNameConcat }) => {
           let roleId;
-          // for each object in the rolesData array,
-          for (var role of rolesData) {
+          let managerId;
+
+          // for each object in the dataSet array,
+          for (var obj of dataSet) {
             // If the object's job_title value matches the user's input value
-            if ((role.job_title = jobTitle)) {
+            if ((obj.job_title = jobTitle)) {
               //  roleId is equal to the id value off that object
-              roleId = role.id;
+              roleId = obj.role_id;
+            }
+            // If the object's job_title value matches the user's input value
+            if (managerNameConcat.indexOf(obj.first_name) !== -1) {
+              //  roleId is equal to the id value off that object
+              managerId = obj.id;
             }
           }
 
-          const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${roleId}, ${manager});`;
+          const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${roleId}, ${managerId});`;
 
           db.query(insertQuery, (err, results) => {
             if (err) {

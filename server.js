@@ -174,9 +174,7 @@ function promptForNewRole(departmentChoices) {
   let departmentData;
   db.query("SELECT * FROM departments;", (err, result) => {
     departmentData = result;
-    // console.log(`Yay for department ids: like...${departmentData[0].id}`);
     departmentNames = result.map(({ department_name }) => department_name);
-    // console.log(departmentNames);
     let addARoleQuestions = [
       {
         type: "input",
@@ -198,15 +196,23 @@ function promptForNewRole(departmentChoices) {
     inquirer
       .prompt(addARoleQuestions)
       .then(({ roleName, roleSalary, departmentName }) => {
-        // filter through departmentData to find object with name key equal in value to user selected department_name
-        // declare deptId variable and assign its value to the id key off the found departmentData[?] object
+        // declare deptId variable
+        let deptId;
+        // for each object in the departmentData array,
+        for (var dept of departmentData) {
+          // If the object's department_name value matches the user's input value
+          if ((dept.department_name = departmentName)) {
+            //  deptId is equal to the id value off that object
+            deptId = dept.id;
+          }
+        }
 
         const insertQuery = `INSERT INTO roles (job_title, salary, department_id) VALUES ("${roleName}", ${roleSalary}, ${deptId});`;
         db.query(insertQuery, (err, results) => {
           if (err) {
             console.log(err);
           } else {
-            console.log(chalk.magenta("Success!"));
+            console.log(chalk.magenta("Role successfully added!"));
             promptStart();
           }
         });

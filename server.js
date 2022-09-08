@@ -170,10 +170,18 @@ function pullDeptChoices() {
 
 // adds a user-input role to employees_db
 function promptForNewRole(departmentChoices) {
+  let departmentNames;
   let departmentData;
   db.query("SELECT * FROM departments;", (err, result) => {
-    departmentData = result.map(({ department_name }) => department_name);
-    console.log("data: ", departmentData);
+    departmentData = result.map(({id, department_name}) => {
+      id: id,
+      name: department_name
+    });
+
+    // console.log(departmentData);
+
+    departmentNames = result.map(({ department_name }) => department_name);
+    console.log(departmentNames);
     let addARoleQuestions = [
       {
         type: "input",
@@ -188,15 +196,17 @@ function promptForNewRole(departmentChoices) {
       {
         type: "list",
         message: "To which department does this role belong?",
-        choices: departmentData,
-        name: "roleDeptId",
+        choices: departmentNames,
+        name: "departmentName",
       },
     ];
     inquirer
       .prompt(addARoleQuestions)
-      .then(({ roleName, roleSalary, roleDeptId }) => {
-        const insertQuery = `INSERT INTO roles (job_title, salary, department_id) VALUES ("${roleName}", ${roleSalary}, ${roleDeptId});`;
+      .then(({ roleName, roleSalary, departmentName }) => {
+        // filter through departmentData to find object with name key equal in value to user selected department_name
+        // declare deptId variable and assign its value to the id key off the found departmentData[?] object
 
+        const insertQuery = `INSERT INTO roles (job_title, salary, department_id) VALUES ("${roleName}", ${roleSalary}, ${deptId});`;
         db.query(insertQuery, (err, results) => {
           if (err) {
             console.log(err);

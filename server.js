@@ -189,56 +189,74 @@ function promptForNewRole(departmentChoices) {
 // adds a user-input employee to employees_db
 function promptForNewEmployee() {
   let jobTitles;
-  let rolesData;
-  db.query("SELECT * FROM roles;", (err, result) => {
-    rolesData = result;
-    jobTitles = result.map(({ job_title }) => job_title);
-    const addAnEmployeeQuestions = [
-      {
-        type: "input",
-        message: "What is the employee's first name",
-        name: "fName",
-      },
-      {
-        type: "input",
-        message: "What is the employee's last name",
-        name: "lName",
-      },
-      {
-        type: "list",
-        message: "What is the employee's role",
-        choices: jobTitles,
-        name: "jobTitle",
-      },
-      {
-        type: "input",
-        message: "Who is the employee's manager",
-        name: "manager",
-      },
-    ];
-    inquirer
-      .prompt(addAnEmployeeQuestions)
-      .then(({ fName, lName, jobTitle, manager }) => {
-        let roleId;
-        // for each object in the rolesData array,
-        for (var role of rolesData) {
-          // If the object's job_title value matches the user's input value
-          if ((role.job_title = jobTitle)) {
-            //  roleId is equal to the id value off that object
-            roleId = role.id;
-          }
-        }
+  let rolesData; //rename to dataSet
+  let managerNames;
+  db.query(
+    "SELECT employees.id, employees.first_name, employees.last_name, roles.id AS role_id, employees.manager_id, roles.job_title FROM employees CROSS JOIN roles ON roles.id = employees.role_id;",
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      rolesData = result;
+      // console.log(result);
+      jobTitles = result.map(({ job_title }) => job_title);
+      // returns all employees - need to filter data to only where
+      let managers = result.filter((obj) => obj.manager_id === null);
+      // console.log(managers);
+      managerNames = managers.map(
+        ({ first_name, last_name, job_title }) =>
+          `${first_name} ${last_name} - ${job_title}`
+      );
+      console.log(managerNames);
 
-        const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${roleId}, ${manager});`;
-
-        db.query(insertQuery, (err, results) => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log(chalk.magenta("Employee successfully added!"));
-            promptStart();
+      const addAnEmployeeQuestions = [
+        {
+          type: "input",
+          message: "What is this employee's first name",
+          name: "fName",
+        },
+        {
+          type: "input",
+          message: "What is this employee's last name",
+          name: "lName",
+        },
+        {
+          type: "list",
+          message: "What is this employee's role",
+          choices: jobTitles,
+          name: "jobTitle",
+        },
+        {
+          type: "list",
+          message: "Who is this employee's manager",
+          choices: managerNames,
+          name: "manager",
+        },
+      ];
+      inquirer
+        .prompt(addAnEmployeeQuestions)
+        .then(({ fName, lName, jobTitle, manager }) => {
+          let roleId;
+          // for each object in the rolesData array,
+          for (var role of rolesData) {
+            // If the object's job_title value matches the user's input value
+            if ((role.job_title = jobTitle)) {
+              //  roleId is equal to the id value off that object
+              roleId = role.id;
+            }
           }
+
+          const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${roleId}, ${manager});`;
+
+          db.query(insertQuery, (err, results) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(chalk.magenta("Employee successfully added!"));
+              promptStart();
+            }
+          });
         });
-      });
-  });
+    }
+  );
 }

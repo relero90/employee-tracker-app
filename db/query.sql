@@ -1,5 +1,19 @@
 -- file only in use for testing sql queries
 
+SELECT  
+    employees.id,
+    employees.first_name, 
+    employees.last_name,
+    roles.id AS role_id,
+    employees.manager_id,
+    roles.job_title
+FROM employees
+CROSS JOIN roles
+ON roles.id = employees.role_id;
+
+
+-- WHERE manager_id = NULL
+
 -- to display available departments
 -- SELECT department_name FROM departments;
 

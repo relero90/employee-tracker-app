@@ -1,7 +1,7 @@
 -- file only in use for testing sql queries
 
 -- to display available departments
-SELECT department_name FROM departments;
+-- SELECT department_name FROM departments;
 
 
 -- to display roles table with department name inserted between role_name and salary

@@ -173,19 +173,10 @@ function promptForNewRole(departmentChoices) {
   let departmentNames;
   let departmentData;
   db.query("SELECT * FROM departments;", (err, result) => {
-    departmentData = result.map(({ id, department_name }) => {
-      [
-        {
-          id: id,
-          name: department_name,
-        },
-      ];
-    });
-
-    console.log(departmentData);
-
+    departmentData = result;
+    // console.log(`Yay for department ids: like...${departmentData[0].id}`);
     departmentNames = result.map(({ department_name }) => department_name);
-    console.log(departmentNames);
+    // console.log(departmentNames);
     let addARoleQuestions = [
       {
         type: "input",

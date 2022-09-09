@@ -188,80 +188,72 @@ function promptForNewEmployee() {
       // capturing values to be used as user choices when entering a new employee
       dataSet = result;
 
-      // working with Justin on this part
-      // for (const obj of result) {
-      //   if (obj.job_title) {
-      //   }
-      // }
-      jobTitles = result.map(({ job_title, role_id }) => ({
-        name: job_title,
-        value: role_id,
-      }));
-      // let titles = jobTitlesUnfiltered.map((obj) => obj.job_title);
-      // jobTitles = jobTitlesUnfiltered.filter(
-      //   ({ job_title }, index) => !titles.includes(job_title, index + 1)
-      // );
-      console.log(chalk.red(jobTitles));
+      db.query("SELECT*FROM roles;", (error, rolesResult) => {
+        jobTitles = rolesResult.map(({ job_title, id }) => ({
+          name: job_title,
+          value: id,
+        }));
 
-      let managers = result.filter((obj) => obj.manager_id === null);
-      managerNames = managers.map(
-        ({ id, first_name, last_name, job_title }) =>
-          `${first_name} ${last_name} - ${job_title}`
-      );
-      managerNames.push("None");
+        let managers = result.filter((obj) => obj.manager_id === null);
+        managerNames = managers.map(
+          ({ id, first_name, last_name, job_title }) =>
+            `${first_name} ${last_name} - ${job_title}`
+        );
+        managerNames.push("None");
 
-      const addAnEmployeeQuestions = [
-        {
-          type: "input",
-          message: "What is this employee's first name",
-          name: "fName",
-        },
-        {
-          type: "input",
-          message: "What is this employee's last name",
-          name: "lName",
-        },
-        {
-          type: "list",
-          message: "What is this employee's role",
-          choices: jobTitles,
-          name: "jobTitle",
-        },
-        {
-          type: "list",
-          message: "Who is this employee's manager",
-          choices: managerNames,
-          name: "managerNameConcat",
-        },
-      ];
-      // inquirer prompts user for employee information
-      inquirer
-        .prompt(addAnEmployeeQuestions)
-        .then(({ fName, lName, jobTitle, managerNameConcat }) => {
-          let managerId;
-          for (const obj of dataSet) {
-            if (
-              // if the user selected managerNameConcat includes both the object's first_name and last_name values
-              managerNameConcat.includes(obj.first_name) &&
-              managerNameConcat.includes(obj.last_name)
-            ) {
-              managerId = obj.id; //  set managerId equal to the employee id value off that object
+        const addAnEmployeeQuestions = [
+          {
+            type: "input",
+            message: "What is this employee's first name",
+            name: "fName",
+          },
+          {
+            type: "input",
+            message: "What is this employee's last name",
+            name: "lName",
+          },
+          {
+            type: "list",
+            message: "What is this employee's role",
+            choices: jobTitles,
+            name: "jobTitle",
+          },
+          {
+            type: "list",
+            message: "Who is this employee's manager",
+            choices: managerNames,
+            name: "managerNameConcat",
+          },
+        ];
+        // inquirer prompts user for employee information
+        inquirer
+          .prompt(addAnEmployeeQuestions)
+          .then(({ fName, lName, jobTitle, managerNameConcat }) => {
+            let managerId;
+            for (const obj of dataSet) {
+              if (
+                // if the user selected managerNameConcat includes both the object's first_name and last_name values
+                managerNameConcat.includes(obj.first_name) &&
+                managerNameConcat.includes(obj.last_name)
+              ) {
+                managerId = obj.id; //  set managerId equal to the employee id value off that object
+              }
+              if (managerNameConcat.includes("None")) {
+                managerId = null; // if no manager selected, set managerId = null
+              }
             }
-            if (managerNameConcat.includes("None")) {
-              managerId = null; // if no manager selected, set managerId = null
-            }
-          }
 
-          const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${jobTitle}, ${managerId});`;
-          db.query(insertQuery, (err, results) => {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log(chalk.magenta("Employee successfully added!"));
-              promptStart();
-            }
+            const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${jobTitle}, ${managerId});`;
+            db.query(insertQuery, (err, results) => {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log(chalk.magenta("Employee successfully added!"));
+                promptStart();
+              }
+            });
           });
-        });
+      });
     }
   );
 }

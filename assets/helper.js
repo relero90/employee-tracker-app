@@ -98,7 +98,7 @@ function promptStart() {
         promptForNewEmployee();
         break;
       case "Update an employee role":
-        updateEmployeeRole();
+        promptForRoleUpdate();
         break;
       default:
         process.exit();
@@ -185,7 +185,6 @@ function promptForNewEmployee() {
       if (err) {
         console.log(err);
       }
-      // capturing values to be used as user choices when entering a new employee
       dataSet = result;
 
       db.query("SELECT*FROM roles;", (error, rolesResult) => {
@@ -259,8 +258,54 @@ function promptForNewEmployee() {
 }
 
 // changes an employee's assigned role
-function updateEmployeeRole() {
-  // query to UPDATE (see M12 A9)
+function promptForRoleUpdate() {
+  let employeesList = [];
+  let jobTitles = [];
+
+  // query to pull job titles with role_id values attached
+  db.query("SELECT*FROM roles;", (err, rolesData) => {
+    jobTitles = rolesData.map(({ job_title, id }) => ({
+      name: job_title,
+      value: id,
+    }));
+    // query to pull employee names
+    db.query("SELECT*FROM employees", (error, empData) => {
+      employeesList = empData.map(({ id, first_name, last_name }) => ({
+        name: `${first_name} ${last_name}`,
+        value: id,
+      }));
+
+      const roleUpdateQuestions = [
+        {
+          type: "list",
+          message: "Which employee do you need to reassign?",
+          choices: employeesList,
+          name: "employee",
+        },
+        {
+          type: "list",
+          message: "What should the employee's new role be?",
+          choices: jobTitles,
+          name: "new_role",
+        },
+      ];
+
+      inquirer.prompt(roleUpdateQuestions).then(({ employee, new_role }) => {
+        let newDeptId;
+        for (const role of rolesData) {
+          if (role.id === new_role) {
+            console.log(`And the winner is ${role.job_title}`);
+            newDeptId = role.department_id;
+            console.log(newDeptId);
+          }
+        }
+        const updateQuery = `UPDATE employees SET role_id=${new_role}, department_id=${newDeptId} WHERE id=${employee}`;
+        console.log(chalk.cyan(updateQuery));
+      });
+    });
+  });
+
+  // This information is updated in the database
 }
 
 module.exports = promptStart;

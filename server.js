@@ -203,15 +203,13 @@ function promptForNewEmployee() {
         name: job_title,
         value: role_id,
       }));
-      console.log(jobTitles);
-      //result.map(({ job_title }) => job_title);
 
       let managers = result.filter((obj) => obj.manager_id === null);
       managerNames = managers.map(
         ({ id, first_name, last_name, job_title }) =>
           `${first_name} ${last_name} - ${job_title}`
       );
-      managerNames.push("NONE");
+      managerNames.push("None");
 
       const addAnEmployeeQuestions = [
         {
@@ -241,36 +239,21 @@ function promptForNewEmployee() {
       inquirer
         .prompt(addAnEmployeeQuestions)
         .then(({ fName, lName, jobTitle, managerNameConcat }) => {
-          let roleId;
           let managerId;
-
-          for (var i = 0; i < dataSet.length; i++) {
-            // if the user selected managerNameConcat includes both the object's first_name and last_name values
+          for (const obj of dataSet) {
             if (
-              managerNameConcat.includes(dataSet[i].first_name) &&
-              managerNameConcat.includes(dataSet[i].last_name)
+              // if the user selected managerNameConcat includes both the object's first_name and last_name values
+              managerNameConcat.includes(obj.first_name) &&
+              managerNameConcat.includes(obj.last_name)
             ) {
-              //  set managerId equal to the id value off that object
-              managerId = dataSet[i].id;
+              managerId = obj.id; //  set managerId equal to the employee id value off that object
             }
-            if (managerNameConcat.includes("NONE")) {
-              managerId = null;
+            if (managerNameConcat.includes("None")) {
+              managerId = null; // if no manager selected, set managerId = null
             }
           }
 
-          console.log(
-            chalk.green(
-              "Checking -- " +
-                "managerId=" +
-                managerId +
-                "  " +
-                "roleId=" +
-                roleId
-            )
-          );
-
           const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${jobTitle}, ${managerId});`;
-
           db.query(insertQuery, (err, results) => {
             if (err) {
               console.log(err);

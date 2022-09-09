@@ -190,6 +190,7 @@ function promptForNewEmployee() {
   let jobTitles;
   let dataSet;
   let managerNames;
+  // db query to pull existing values
   db.query(
     "SELECT employees.id, employees.first_name, employees.last_name, roles.id AS role_id, employees.manager_id, roles.job_title FROM employees CROSS JOIN roles ON roles.id = employees.role_id;",
     (err, result) => {
@@ -199,11 +200,14 @@ function promptForNewEmployee() {
       // capturing values to be used as user choices when entering a new employee
       dataSet = result;
       jobTitles = result.map(({ job_title }) => job_title);
+
       let managers = result.filter((obj) => obj.manager_id === null);
       managerNames = managers.map(
         ({ id, first_name, last_name, job_title }) =>
           `${first_name} ${last_name} - ${job_title}`
       );
+      managerNames.push("NONE");
+
       const addAnEmployeeQuestions = [
         {
           type: "input",
@@ -225,28 +229,61 @@ function promptForNewEmployee() {
           type: "list",
           message: "Who is this employee's manager",
           choices: managerNames,
-          name: "manager",
+          name: "managerNameConcat",
         },
       ];
+      // inquirer prompts user for employee information
       inquirer
         .prompt(addAnEmployeeQuestions)
         .then(({ fName, lName, jobTitle, managerNameConcat }) => {
           let roleId;
           let managerId;
 
+          console.log(dataSet[3].job_title);
+          console.log(dataSet[4].job_title);
+          console.log(dataSet[5].job_title);
+
+          console.log(chalk.red(jobTitle));
+          console.log(chalk.red(managerNameConcat));
+
+          let roleMatch = dataSet.filter((obj) => {
+            obj.job_title == jobTitle;
+          });
+          console.log(roleMatch);
+
           // for each object in the dataSet array,
-          for (var obj of dataSet) {
-            // If the object's job_title value matches the user's input value
-            if ((obj.job_title = jobTitle)) {
-              //  roleId is equal to the id value off that object
-              roleId = obj.role_id;
+          for (var i = 0; i < dataSet.length; i++) {
+            // if the user selected managerNameConcat includes both the object's first_name and last_name values
+            if (
+              managerNameConcat.includes(dataSet[i].first_name) &&
+              managerNameConcat.includes(dataSet[i].last_name)
+            ) {
+              //  set managerId equal to the id value off that object
+              managerId = dataSet[i].id;
             }
-            // If the object's job_title value matches the user's input value
-            if (managerNameConcat.indexOf(obj.first_name) !== -1) {
+            // else if ((managerNameConcat = "NONE")) {
+            //   managerId = null;
+            // }
+          }
+
+          for (var i = 0; i < dataSet.length; i++) {
+            // If the object's job_title value matches the user's input value (jobTitle)
+            if ((dataSet[i].job_title = jobTitle)) {
               //  roleId is equal to the id value off that object
-              managerId = obj.id;
+              roleId = dataSet[i].role_id;
             }
           }
+
+          console.log(
+            chalk.green(
+              "Checking -- " +
+                "managerId=" +
+                managerId +
+                "  " +
+                "roleId=" +
+                roleId
+            )
+          );
 
           const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${roleId}, ${managerId});`;
 

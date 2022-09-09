@@ -199,7 +199,12 @@ function promptForNewEmployee() {
       }
       // capturing values to be used as user choices when entering a new employee
       dataSet = result;
-      jobTitles = result.map(({ job_title }) => job_title);
+      jobTitles = result.map(({ job_title, role_id }) => ({
+        name: job_title,
+        value: role_id,
+      }));
+      console.log(jobTitles);
+      //result.map(({ job_title }) => job_title);
 
       let managers = result.filter((obj) => obj.manager_id === null);
       managerNames = managers.map(
@@ -239,19 +244,6 @@ function promptForNewEmployee() {
           let roleId;
           let managerId;
 
-          console.log(dataSet[3].job_title);
-          console.log(dataSet[4].job_title);
-          console.log(dataSet[5].job_title);
-
-          console.log(chalk.red(jobTitle));
-          console.log(chalk.red(managerNameConcat));
-
-          let roleMatch = dataSet.filter((obj) => {
-            obj.job_title == jobTitle;
-          });
-          console.log(roleMatch);
-
-          // for each object in the dataSet array,
           for (var i = 0; i < dataSet.length; i++) {
             // if the user selected managerNameConcat includes both the object's first_name and last_name values
             if (
@@ -261,16 +253,8 @@ function promptForNewEmployee() {
               //  set managerId equal to the id value off that object
               managerId = dataSet[i].id;
             }
-            // else if ((managerNameConcat = "NONE")) {
-            //   managerId = null;
-            // }
-          }
-
-          for (var i = 0; i < dataSet.length; i++) {
-            // If the object's job_title value matches the user's input value (jobTitle)
-            if ((dataSet[i].job_title = jobTitle)) {
-              //  roleId is equal to the id value off that object
-              roleId = dataSet[i].role_id;
+            if (managerNameConcat.includes("NONE")) {
+              managerId = null;
             }
           }
 
@@ -285,7 +269,7 @@ function promptForNewEmployee() {
             )
           );
 
-          const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${roleId}, ${managerId});`;
+          const insertQuery = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", ${jobTitle}, ${managerId});`;
 
           db.query(insertQuery, (err, results) => {
             if (err) {

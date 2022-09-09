@@ -107,21 +107,18 @@ function promptStart() {
   });
 }
 
-// adds a user-input department to employees_db
-function promptForNewDept() {
-  inquirer.prompt(addADeptQuestion).then(({ departmentName }) => {
-    const insertQuery = `INSERT INTO departments (department_name) VALUES ("${departmentName}");`;
-    db.query(insertQuery, (err, results) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(chalk.magenta("Department successfully added!"));
-        promptStart();
-      }
-    });
+const promptForNewDept = async () => {
+  const response = await inquirer.prompt(addADeptQuestion);
+  const insertQuery = `INSERT INTO departments (department_name) VALUES ("${response.departmentName}");`;
+  db.query(insertQuery, (err, results) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(chalk.magenta("Department successfully added!"));
+      promptStart();
+    }
   });
-  return;
-}
+};
 
 // adds a user-input role to employees_db
 function promptForNewRole() {

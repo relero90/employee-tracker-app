@@ -2,7 +2,6 @@ DROP DATABASE IF EXISTS employees_db;
 CREATE DATABASE employees_db;
 
 USE employees_db;
-
 -- create parent table -> departments
 CREATE TABLE departments (
     id INT UNSIGNED AUTO_INCREMENT,

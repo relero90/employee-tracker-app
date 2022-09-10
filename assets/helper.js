@@ -268,13 +268,13 @@ function promptForRoleUpdate() {
       name: job_title,
       value: id,
     }));
-    // query to pull employee names
+    // query to pull employee names with id values attached
     db.query("SELECT*FROM employees", (error, empData) => {
       employeesList = empData.map(({ id, first_name, last_name }) => ({
         name: `${first_name} ${last_name}`,
         value: id,
       }));
-
+      // array with dynamically-generated answer choices
       const roleUpdateQuestions = [
         {
           type: "list",
@@ -289,23 +289,19 @@ function promptForRoleUpdate() {
           name: "new_role",
         },
       ];
-
       inquirer.prompt(roleUpdateQuestions).then(({ employee, new_role }) => {
-        let newDeptId;
-        for (const role of rolesData) {
-          if (role.id === new_role) {
-            console.log(`And the winner is ${role.job_title}`);
-            newDeptId = role.department_id;
-            console.log(newDeptId);
+        const updateQuery = `UPDATE employees SET role_id=${new_role} WHERE id=${employee};`;
+        // update employee role_id in the database
+        db.query(updateQuery, (oops, result) => {
+          if (oops) {
+            console.log(oops);
           }
-        }
-        const updateQuery = `UPDATE employees SET role_id=${new_role}, department_id=${newDeptId} WHERE id=${employee}`;
-        console.log(chalk.cyan(updateQuery));
+          console.log(chalk.magenta("Employee role successfully updated."));
+          promptStart();
+        });
       });
     });
   });
-
-  // This information is updated in the database
 }
 
 module.exports = promptStart;

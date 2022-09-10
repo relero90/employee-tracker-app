@@ -29,4 +29,4 @@ To use this app to manage your own organization, clone the repository code to yo
 ---
 
 To see the employee tracker in action, check out this
-[demonstration video](https://watch.screencastify.com/v/IIiLumMhl7kYC7Hjg83M){:target="\_blank"}.
+[demonstration video](https://external.ink?to=/watch.screencastify.com/v/IIiLumMhl7kYC7Hjg83M).

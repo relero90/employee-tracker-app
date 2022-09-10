@@ -22,7 +22,7 @@ The user can add information to and delete information from the SQL database. Ex
 
 ---
 
-To use this app to manage your own organization, clone the repository code to your local device. From the command line, pass `node index.js start`
+To use this app to manage your own organization, clone the repository code to your local device. From the command line, pass `node server.js start`
 
 ## Demo
 

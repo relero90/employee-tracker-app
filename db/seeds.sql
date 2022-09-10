@@ -2,7 +2,8 @@ INSERT INTO departments (department_name)
 VALUES
     ("Aviary"),
     ("Oversized Felines"),
-    ("Aquaria");
+    ("Aquaria"),
+    ("Reptile Room");
 
 INSERT INTO roles (job_title, salary, department_id)
 VALUES
@@ -11,7 +12,8 @@ VALUES
     ("Aquaman", 90000, 3),
     ("Squalk Backer", 40000, 1),
     ("Doo Picker", 40000, 2),
-    ("Glass Scrubber", 50000, 3);
+    ("Glass Scrubber", 50000, 3),
+    ("Resident Parseltongue", 90000, 4);
 
 INSERT INTO employees (first_name, last_name, role_id, manager_id)
 VALUES

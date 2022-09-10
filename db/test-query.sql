@@ -1,5 +1,7 @@
 -- file only in use for testing sql queries
 
+-- UPDATE employees SET role_id= WHERE id=
+
 -- SELECT  
 --     employees.id,
 --     employees.first_name, 

@@ -13,8 +13,11 @@ const startQuestion = [
       "View all roles",
       "View all employees",
       "Add a department",
+      "Delete a department",
       "Add a role",
+      "Delete a role",
       "Add an employee",
+      "Delete an employee",
       "Update an employee role",
       "Exit the employee tracker",
     ],
@@ -91,11 +94,19 @@ function promptStart() {
       case "Add a department":
         promptForNewDept();
         break;
+      case "Delete a department":
+        //potentially?;
+        break;
       case "Add a role":
         promptForNewRole();
         break;
+      case "Delete a role":
+        //??
+        break;
       case "Add an employee":
         promptForNewEmployee();
+        break;
+      case "Delete an employee":
         break;
       case "Update an employee role":
         promptForRoleUpdate();
@@ -177,8 +188,6 @@ function promptForNewEmployee() {
   let dataSet;
   let managerNames;
 
-  // separate db query for jobTitles from roles table
-  // db query to pull existing values
   db.query(
     "SELECT employees.id, employees.first_name, employees.last_name, roles.id AS role_id, employees.manager_id, roles.job_title FROM employees CROSS JOIN roles ON roles.id = employees.role_id;",
     (err, result) => {

@@ -10,16 +10,16 @@ const startQuestion = [
     message: "What would you like to do?",
     choices: [
       "View all departments",
-      "View all roles",
-      "View all employees",
       "Add a department",
       "Delete a department",
+      "View all roles",
       "Add a role",
       "Delete a role",
+      "View all employees",
+      "Update an employee's role",
       "Add an employee",
       "Delete an employee",
-      "Update an employee role",
-      "Exit the employee tracker",
+      "Exit",
     ],
     name: "userReq",
   },
@@ -48,6 +48,12 @@ function promptStart() {
           }
         });
         break;
+      case "Add a department":
+        promptForNewDept();
+        break;
+      case "Delete a department":
+        deleteDepartment();
+        break;
       case "View all roles":
         // console log table of all roles
         const roleQuery = `SELECT roles.id, roles.job_title, departments.department_name,  roles.salary FROM roles
@@ -62,6 +68,12 @@ function promptStart() {
             promptStart();
           }
         });
+        break;
+      case "Add a role":
+        promptForNewRole();
+        break;
+      case "Delete a role":
+        deleteRole();
         break;
       case "View all employees":
         // console log table of al employees
@@ -91,25 +103,14 @@ function promptStart() {
           }
         });
         break;
-      case "Add a department":
-        promptForNewDept();
-        break;
-      case "Delete a department":
-        //potentially?;
-        break;
-      case "Add a role":
-        promptForNewRole();
-        break;
-      case "Delete a role":
-        //??
+      case "Update an employee's role":
+        promptForRoleUpdate();
         break;
       case "Add an employee":
         promptForNewEmployee();
         break;
       case "Delete an employee":
-        break;
-      case "Update an employee role":
-        promptForRoleUpdate();
+        deleteEmployee();
         break;
       default:
         process.exit();
@@ -179,6 +180,53 @@ function promptForNewRole() {
           }
         });
       });
+  });
+}
+
+// changes an employee's assigned role
+function promptForRoleUpdate() {
+  let employeesList = [];
+  let jobTitles = [];
+
+  // query to pull job titles with role_id values attached
+  db.query("SELECT*FROM roles;", (err, rolesData) => {
+    jobTitles = rolesData.map(({ job_title, id }) => ({
+      name: job_title,
+      value: id,
+    }));
+    // query to pull employee names with id values attached
+    db.query("SELECT*FROM employees", (error, empData) => {
+      employeesList = empData.map(({ id, first_name, last_name }) => ({
+        name: `${first_name} ${last_name}`,
+        value: id,
+      }));
+      // array with dynamically-generated answer choices
+      const roleUpdateQuestions = [
+        {
+          type: "list",
+          message: "Which employee do you need to reassign?",
+          choices: employeesList,
+          name: "employee",
+        },
+        {
+          type: "list",
+          message: "What should the employee's new role be?",
+          choices: jobTitles,
+          name: "new_role",
+        },
+      ];
+      inquirer.prompt(roleUpdateQuestions).then(({ employee, new_role }) => {
+        const updateQuery = `UPDATE employees SET role_id=${new_role} WHERE id=${employee};`;
+        // update employee role_id in the database
+        db.query(updateQuery, (oops, result) => {
+          if (oops) {
+            console.log(oops);
+          }
+          console.log(chalk.magenta("Employee role successfully updated."));
+          promptStart();
+        });
+      });
+    });
   });
 }
 
@@ -266,49 +314,137 @@ function promptForNewEmployee() {
   );
 }
 
-// changes an employee's assigned role
-function promptForRoleUpdate() {
-  let employeesList = [];
-  let jobTitles = [];
+function deleteEmployee() {
+  db.query("SELECT*FROM employees", (err, data) => {
+    const employeeChoices = data.map(({ id, first_name, last_name }) => ({
+      name: `${first_name} ${last_name}`,
+      value: id,
+    }));
+    const deleteQuestions = [
+      {
+        type: "list",
+        message: "Which employee would you like to delete?",
+        choices: employeeChoices,
+        name: "selectedEmployee",
+      },
+      {
+        type: "list",
+        message: "Are you sure? This cannot be undone.",
+        choices: [
+          `Cancel`,
+          `Confirm - Permanently delete employee from database.`,
+        ],
+        name: "confirmation",
+      },
+    ];
+    inquirer
+      .prompt(deleteQuestions)
+      .then(({ selectedEmployee, confirmation }) => {
+        if (confirmation === `Cancel`) {
+          promptStart();
+        }
+        db.query(
+          `DELETE FROM employees WHERE id=${selectedEmployee}`,
+          (error, result) => {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log(
+                chalk.magenta(
+                  `Employee was successfully deleted from database.`
+                )
+              );
+              promptStart();
+            }
+          }
+        );
+      });
+  });
+}
 
-  // query to pull job titles with role_id values attached
-  db.query("SELECT*FROM roles;", (err, rolesData) => {
-    jobTitles = rolesData.map(({ job_title, id }) => ({
+function deleteRole() {
+  db.query("SELECT*FROM roles", (err, data) => {
+    const roleChoices = data.map(({ id, job_title }) => ({
       name: job_title,
       value: id,
     }));
-    // query to pull employee names with id values attached
-    db.query("SELECT*FROM employees", (error, empData) => {
-      employeesList = empData.map(({ id, first_name, last_name }) => ({
-        name: `${first_name} ${last_name}`,
-        value: id,
-      }));
-      // array with dynamically-generated answer choices
-      const roleUpdateQuestions = [
-        {
-          type: "list",
-          message: "Which employee do you need to reassign?",
-          choices: employeesList,
-          name: "employee",
-        },
-        {
-          type: "list",
-          message: "What should the employee's new role be?",
-          choices: jobTitles,
-          name: "new_role",
-        },
-      ];
-      inquirer.prompt(roleUpdateQuestions).then(({ employee, new_role }) => {
-        const updateQuery = `UPDATE employees SET role_id=${new_role} WHERE id=${employee};`;
-        // update employee role_id in the database
-        db.query(updateQuery, (oops, result) => {
-          if (oops) {
-            console.log(oops);
+    const deleteQuestions = [
+      {
+        type: "list",
+        message: "Which role would you like to delete?",
+        choices: roleChoices,
+        name: "selectedRole",
+      },
+      {
+        type: "list",
+        message: "Are you sure? This cannot be undone.",
+        choices: [`Cancel`, `Confirm - Permanently delete role from database.`],
+        name: "confirmation",
+      },
+    ];
+    inquirer.prompt(deleteQuestions).then(({ selectedRole, confirmation }) => {
+      if (confirmation === `Cancel`) {
+        promptStart();
+      }
+      db.query(
+        `DELETE FROM roles WHERE id=${selectedRole}`,
+        (error, result) => {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log(
+              chalk.magenta(`Role was successfully deleted from database.`)
+            );
+            promptStart();
           }
-          console.log(chalk.magenta("Employee role successfully updated."));
-          promptStart();
-        });
-      });
+        }
+      );
+    });
+  });
+}
+
+function deleteDepartment() {
+  db.query("SELECT*FROM departments", (err, data) => {
+    const deptChoices = data.map(({ id, department_name }) => ({
+      name: department_name,
+      value: id,
+    }));
+    const deleteQuestions = [
+      {
+        type: "list",
+        message: "Which department would you like to delete?",
+        choices: deptChoices,
+        name: "selectedDept",
+      },
+      {
+        type: "list",
+        message: "Are you sure? This cannot be undone.",
+        choices: [
+          `Cancel`,
+          `Confirm - Permanently delete department from database.`,
+        ],
+        name: "confirmation",
+      },
+    ];
+    inquirer.prompt(deleteQuestions).then(({ selectedDept, confirmation }) => {
+      if (confirmation === `Cancel`) {
+        promptStart();
+      }
+      db.query(
+        `DELETE FROM departments WHERE id=${selectedDept}`,
+        (error, result) => {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log(
+              chalk.magenta(
+                `Department was successfully deleted from database.`
+              )
+            );
+            promptStart();
+          }
+        }
+      );
     });
   });
 }
